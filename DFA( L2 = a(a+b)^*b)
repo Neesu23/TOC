@@ -1,0 +1,87 @@
+Q4.  To design a Finite Automaton (FA) that accepts the language ( L2 ) over the alphabet ( S = {a, b} ), where ( L2 = a(a+b)^*b ), we can define the states and transitions as follows:
+
+Finite Automaton Design
+States:
+
+( q_0 ): Start state (waiting for 'a')
+( q_1 ): First 'a' has been read (waiting for more characters)
+( q_2 ): Accepting state (waiting for 'b' after reading 'a' and any combination of 'a' and 'b')
+( q_{reject} ): Rejecting state (any invalid input)
+Transitions:
+
+From ( q_0 ):
+On input 'a', go to ( q_1 ) (first 'a' read).
+On input 'b', go to ( q_{reject} ) (invalid input).
+From ( q_1 ):
+On input 'a', stay in ( q_1 ) (continue reading).
+On input 'b', go to ( q_2 ) (first 'b' read after 'a').
+From ( q_2 ):
+On input 'a', stay in ( q_1 ) (can read more 'a's).
+On input 'b', stay in ( q_2 ) (can read more 'b's).
+From ( q_{reject} ):
+Stay in ( q_{reject} ) for any input.
+Accepting State: ( q_2 )
+
+C++ Program to Simulate the FA:
+
+#include <iostream>
+#include <string>
+
+enum State {
+    q0,          // Start state
+    q1,          // First 'a' read
+    q2,          // Accepting state (after 'a' and any combination of 'a' and 'b', waiting for 'b')
+    q_reject     // Rejecting state
+};
+
+bool accepts(const std::string& input) {
+    State currentState = q0;
+
+    for (char c : input) {
+        switch (currentState) {
+            case q0:
+                if (c == 'a') {
+                    currentState = q1; // Move to q1 on 'a'
+                } else {
+                    currentState = q_reject; // Move to reject state on 'b'
+                }
+                break;
+            case q1:
+                if (c == 'a') {
+                    currentState = q1; // Stay in q1 on 'a'
+                } else if (c == 'b') {
+                    currentState = q2; // Move to q2 on 'b'
+                }
+                break;
+            case q2:
+                if (c == 'a') {
+                    currentState = q1; // Move back to q1 on 'a'
+                } else if (c == 'b') {
+                    currentState = q2; // Stay in q2 on 'b'
+                }
+                break;
+            case q_reject:
+                // Stay in reject state for any input
+                currentState = q_reject;
+                break;
+        }
+    }
+
+    // Accept if we are in the accepting state
+    return currentState == q2;
+}
+
+int main() {
+    std::string input;
+
+    std::cout << "Enter a string composed of 'a' and 'b': ";
+    std::cin >> input;
+
+    if (accepts(input)) {
+        std::cout << "The string is accepted by the FA." << std::endl;
+    } else {
+        std::cout << "The string is rejected by the FA." << std::endl;
+    }
+
+    return 0;
+}
