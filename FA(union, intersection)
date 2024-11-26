@@ -1,0 +1,133 @@
+Q6.  To simulate a Finite Automaton (FA) that accepts the union, intersection, and concatenation of two languages ( L1 ) and ( L2 ), we first need to define these languages. For the sake of this example, let's assume:
+
+Language ( L1 ): Strings that start with 'a' and end with 'b' (e.g., "ab", "aab", "abb").
+Language ( L2 ): Strings that contain an even number of 'a's (e.g., "", "aa", "abab", "b").
+Finite Automaton Design
+Union of ( L1 ) and ( L2 ):
+
+Accept if the string is accepted by either ( L1 ) or ( L2 ).
+Intersection of ( L1 ) and ( L2 ):
+
+Accept if the string is accepted by both ( L1 ) and ( L2 ).
+Concatenation of ( L1 ) and ( L2 ):
+
+Accept if the string can be split into two parts, where the first part is accepted by ( L1 ) and the second part is accepted by ( L2 ).
+C++ Program to Simulate the FA
+
+#include <iostream>
+#include <string>
+
+enum StateL1 {
+    L1_q0, // Start state for L1
+    L1_q1, // State after reading 'a'
+    L1_q2  // Accepting state for L1
+};
+
+enum StateL2 {
+    L2_q0, // Start state for L2
+    L2_q1  // State after reading an odd number of 'a's
+};
+
+// Function to check if a string belongs to L1
+bool acceptsL1(const std::string& input) {
+    StateL1 currentState = L1_q0;
+
+    for (char c : input) {
+        switch (currentState) {
+            case L1_q0:
+                if (c == 'a') {
+                    currentState = L1_q1; // Move to state after reading 'a'
+                } else {
+                    currentState = L1_q0; // Stay in start state
+                }
+                break;
+            case L1_q1:
+                if (c == 'b') {
+                    currentState = L1_q2; // Move to accepting state
+                } else {
+                    currentState = L1_q1; // Stay in state after 'a'
+                }
+                break;
+            case L1_q2:
+                // Once in accepting state, stay there
+                currentState = L1_q2;
+                break;
+        }
+    }
+
+    return currentState == L1_q2; // Accept if in accepting state
+}
+
+// Function to check if a string belongs to L2
+bool acceptsL2(const std::string& input) {
+    StateL2 currentState = L2_q0;
+
+    for (char c : input) {
+        switch (currentState) {
+            case L2_q0:
+                if (c == 'a') {
+                    currentState = L2_q1; // Move to odd 'a's
+                }
+                break;
+            case L2_q1:
+                if (c == 'a') {
+                    currentState = L2_q0; // Move to even 'a's
+                }
+                break;
+        }
+    }
+
+    return currentState == L2_q0; // Accept if in accepting state
+}
+
+// Function to check union of L1 and L2
+bool acceptsUnion(const std::string& input) {
+    return acceptsL1(input) || acceptsL2(input);
+}
+
+// Function to check intersection of L1 and L2
+bool acceptsIntersection(const std::string& input) {
+    return acceptsL1(input) && acceptsL2(input);
+}
+
+// Function to check concatenation of L1 and L2
+bool acceptsConcatenation(const std::string& input) {
+    for (size_t i = 1; i < input.length(); ++i) {
+        std::string part1 = input.substr(0, i);
+        std::string part2 = input.substr(i);
+        if (acceptsL1(part1) && acceptsL2(part2)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int main() {
+    std::string input;
+
+    std::cout << "Enter a string composed of 'a' and 'b': ";
+    std::cin >> input;
+
+    // Check Union
+    if (acceptsUnion(input)) {
+        std::cout << "The string is accepted by the union of L1 and L2." << std::endl;
+    } else {
+        std::cout << "The string is rejected by the union of L1 and L2." << std::endl;
+    }
+
+    // Check Intersection
+    if (acceptsIntersection(input)) {
+        std::cout << "The string is accepted by the intersection of L1 and L2." << std::endl;
+    } else {
+        std::cout << "The string is rejected by the intersection of L1 and L2." << std::endl;
+    }
+
+    // Check Concatenation
+    if (acceptsConcatenation(input)) {
+        std::cout << "The string is accepted by the concatenation of L1 and L2." << std::endl;
+    } else {
+        std::cout << "The string is rejected by the concatenation of L1 and L2." << std::endl;
+    }
+
+    return 0;
+}
