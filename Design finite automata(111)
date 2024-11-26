@@ -1,0 +1,86 @@
+Q1.To design a finite automaton (FA) that accepts all strings over the alphabet ( S = {0, 1} ) containing the substring "111", we can define the states of the FA as follows:
+
+States:
+q0: The initial state, where we haven't seen any '1's yet.
+q1: The state where we have seen one '1'.
+q2: The state where we have seen two consecutive '1's.
+q3: The accepting state where we have seen three consecutive '1's.
+Transitions:
+From q0:
+
+On '0' → stay in q0
+On '1' → go to q1
+From q1:
+
+On '0' → go back to q0
+On '1' → go to q2
+From q2:
+
+On '0' → go back to q0
+On '1' → go to q3
+From q3 (accepting state):
+
+On '0' → stay in q3
+On '1' → stay in q3
+
+C++ Program
+
+
+#include <iostream>
+#include <string>
+
+enum State {
+    q0, // Initial state
+    q1, // State after seeing one '1'
+    q2, // State after seeing two consecutive '1's
+    q3  // Accepting state after seeing three consecutive '1's
+};
+
+bool accepts(const std::string& input) {
+    State currentState = q0;
+
+    for (char ch : input) {
+        switch (currentState) {
+            case q0:
+                if (ch == '1') {
+                    currentState = q1;
+                } // else stay in q0
+                break;
+            case q1:
+                if (ch == '1') {
+                    currentState = q2;
+                } else {
+                    currentState = q0; // reset on '0'
+                }
+                break;
+            case q2:
+                if (ch == '1') {
+                    currentState = q3;
+                } else {
+                    currentState = q0; // reset on '0'
+                }
+                break;
+            case q3:
+                // Stay in q3 for any input
+                break;
+        }
+    }
+
+    // Accept if we are in the accepting state
+    return currentState == q3;
+}
+
+int main() {
+    std::string input;
+
+    std::cout << "Enter a binary string (only 0s and 1s): ";
+    std::cin >> input;
+
+    if (accepts(input)) {
+        std::cout << "The string is accepted (contains '111')." << std::endl;
+    } else {
+        std::cout << "The string is not accepted (does not contain '111')." << std::endl;
+    }
+
+    return 0;
+}
