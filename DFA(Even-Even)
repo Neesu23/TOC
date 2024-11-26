@@ -1,0 +1,91 @@
+Q5.  To design a Finite Automaton (FA) that accepts the language "EVEN-EVEN" over the alphabet ( S = {a, b} ), we need to define the conditions for acceptance. The language "EVEN-EVEN" means that the string must have an even number of 'a's and an even number of 'b's.
+
+Finite Automaton Design
+States:
+
+( q_{00} ): Initial state (even number of 'a's and even number of 'b's)
+( q_{01} ): Odd number of 'a's and even number of 'b's
+( q_{10} ): Even number of 'a's and odd number of 'b's
+( q_{11} ): Odd number of 'a's and odd number of 'b's
+Transitions:
+
+From ( q_{00} ):
+On input 'a', go to ( q_{01} ) (odd 'a's).
+On input 'b', go to ( q_{10} ) (odd 'b's).
+From ( q_{01} ):
+On input 'a', go to ( q_{00} ) (even 'a's).
+On input 'b', go to ( q_{11} ) (odd 'b's).
+From ( q_{10} ):
+On input 'a', go to ( q_{11} ) (odd 'a's).
+On input 'b', go to ( q_{00} ) (even 'b's).
+From ( q_{11} ):
+On input 'a', go to ( q_{10} ) (even 'a's).
+On input 'b', go to ( q_{01} ) (odd 'b's).
+Accepting State: ( q_{00} ) (only this state is accepting, as it represents an even number of both 'a's and 'b's).
+
+C++ Program to Simulate the FA
+
+#include <iostream>
+#include <string>
+
+enum State {
+    q00,         // Even 'a's and even 'b's (accepting state)
+    q01,         // Odd 'a's and even 'b's
+    q10,         // Even 'a's and odd 'b's
+    q11          // Odd 'a's and odd 'b's
+};
+
+bool accepts(const std::string& input) {
+    State currentState = q00; // Start in the accepting state
+
+    for (char c : input) {
+        switch (currentState) {
+            case q00:
+                if (c == 'a') {
+                    currentState = q01; // Move to odd 'a's
+                } else if (c == 'b') {
+                    currentState = q10; // Move to odd 'b's
+                }
+                break;
+            case q01:
+                if (c == 'a') {
+                    currentState = q00; // Move to even 'a's
+                } else if (c == 'b') {
+                    currentState = q11; // Move to odd 'b's
+                }
+                break;
+            case q10:
+                if (c == 'a') {
+                    currentState = q11; // Move to odd 'a's
+                } else if (c == 'b') {
+                    currentState = q00; // Move to even 'b's
+                }
+                break;
+            case q11:
+                if (c == 'a') {
+                    currentState = q10; // Move to even 'a's
+                } else if (c == 'b') {
+                    currentState = q01; // Move to odd 'b's
+                }
+                break;
+        }
+    }
+
+    // Accept if we are in the accepting state
+    return currentState == q00;
+}
+
+int main() {
+    std::string input;
+
+    std::cout << "Enter a string composed of 'a' and 'b': ";
+    std::cin >> input;
+
+    if (accepts(input)) {
+        std::cout << "The string is accepted by the FA." << std::endl;
+    } else {
+        std::cout << "The string is rejected by the FA." << std::endl;
+    }
+
+    return 0;
+}
