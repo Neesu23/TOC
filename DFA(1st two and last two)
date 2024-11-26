@@ -1,0 +1,111 @@
+Q3. To design a Finite Automaton (FA) that accepts strings over the alphabet ( S = {a, b} ) where the first two characters are the same as the last two characters, and the string has a length of at least 4, we can define the states and transitions as follows:
+
+Finite Automaton Design
+States:
+
+( q_0 ): Start state (initial state, no input processed)
+( q_1 ): First character processed
+( q_2 ): Second character processed (we have the first two characters)
+( q_3 ): Third character processed (still checking for the last two characters)
+( q_4 ): Fourth character processed (check if the last two match the first two)
+( q_{accept} ): Accepting state (the last two characters match the first two)
+( q_{reject} ): Rejecting state (the last two characters do not match the first two)
+Transitions:
+
+From ( q_0 ):
+On input 'a', go to ( q_1 ) (first character is 'a').
+On input 'b', go to ( q_1 ) (first character is 'b').
+From ( q_1 ):
+On input 'a', go to ( q_2 ) (second character is 'a').
+On input 'b', go to ( q_2 ) (second character is 'b').
+From ( q_2 ):
+On input 'a', go to ( q_3 ) (third character is 'a').
+On input 'b', go to ( q_3 ) (third character is 'b').
+From ( q_3 ):
+On input 'a', go to ( q_4 ) (fourth character is 'a').
+On input 'b', go to ( q_4 ) (fourth character is 'b').
+From ( q_4 ):
+On input 'a':
+If first two were 'aa', go to ( q_{accept} ).
+Otherwise, go to ( q_{reject} ).
+On input 'b':
+If first two were 'bb', go to ( q_{accept} ).
+Otherwise, go to ( q_{reject} ).
+Accepting States: ( q_{accept} )
+
+C++ Program to Simulate the FA
+#include <iostream>
+#include <string>
+
+enum State {
+    q0,          // Start state
+    q1,          // First character processed
+    q2,          // Second character processed
+    q3,          // Third character processed
+    q4,          // Fourth character processed
+    q_accept,    // Accepting state
+    q_reject     // Rejecting state
+};
+
+bool accepts(const std::string& input) {
+    if (input.length() < 4) {
+        return false; // Reject if length is less than 4
+    }
+
+    State currentState = q0;
+    char first = '\0', second = '\0';
+
+    for (size_t i = 0; i < input.length(); ++i) {
+        char c = input[i];
+
+        switch (currentState) {
+            case q0:
+                first = c; // Store first character
+                currentState = q1; // Move to q1
+                break;
+            case q1:
+                second = c; // Store second character
+                currentState = q2; // Move to q2
+                break;
+            case q2:
+                currentState = q3; // Move to q3
+                break;
+            case q3:
+                currentState = q4; // Move to q4
+                break;
+            case q4:
+                // Check if the last two characters match the first two
+                if (i == input.length() - 1) {
+                    if (c == first && input[i - 1] == second) {
+                        currentState = q_accept; // Move to accepting state
+                    } else {
+                        currentState = q_reject; // Move to rejecting state
+                    }
+                }
+                break;
+            case q_accept:
+            case q_reject:
+                // Once in accept or reject state, stay there
+                currentState = currentState;
+                break;
+        }
+    }
+
+    // Accept if we are in the accepting state
+    return currentState == q_accept;
+}
+
+int main() {
+    std::string input;
+
+    std::cout << "Enter a string composed of 'a' and 'b': ";
+    std::cin >> input;
+
+    if (accepts(input)) {
+         std::cout << "The string is accepted by the FA." << std::endl;
+    } else {
+        std::cout << "The string is rejected by the FA." << std::endl;
+    }
+
+    return 0;
+}
