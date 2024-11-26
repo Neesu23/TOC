@@ -1,0 +1,86 @@
+Q8.  To design a Pushdown Automaton (PDA) that accepts the language ( L = { w X w^r \mid w \text{ is any string over } S = { a, b } \text{ and } w^r \text{ is the reverse of that string and } X \text{ is a special symbol} } ), we will outline the structure of the PDA and then provide a C++ program to simulate it.
+
+PDA Design for the Language ( L = { w X w^r } )
+PDA Structure
+States:
+
+( q_0 ): Start state
+( q_1 ): State after reading ( X )
+( q_f ): Accepting state
+Stack Operations:
+
+Push each character of ( w ) onto the stack until ( X ) is read.
+After reading ( X ), for each character in ( w^r ), pop from the stack.
+If the stack is empty after reading all input and we are in the accepting state, the input is accepted.
+Transitions:
+
+( (q_0, a, \epsilon) \rightarrow (q_0, a) ) // Push 'a' onto the stack
+( (q_0, b, \epsilon) \rightarrow (q_0, b) ) // Push 'b' onto the stack
+( (q_0, X, \epsilon) \rightarrow (q_1, \epsilon) ) // Transition to state after reading X
+( (q_1, a, a) \rightarrow (q_1, \epsilon) ) // Pop 'a' for each 'a' in w^r
+( (q_1, b, b) \rightarrow (q_1, \epsilon) ) // Pop 'b' for each 'b' in w^r
+( (q_1, \epsilon, \epsilon) \rightarrow (q_f, \epsilon) ) // Accept if stack is empty
+C++ Program to Simulate the PDA:
+
+
+#include <iostream>
+#include <stack>
+#include <string>
+
+bool acceptsWxWr(const std::string& input) {
+    std::stack<char> stack;
+    size_t i = 0;
+    size_t n = input.length();
+
+    // Check if the input is empty or does not contain 'X'
+    if (n == 0 || input.find('X') == std::string::npos) {
+        return false; // Invalid input
+    }
+
+    // Push characters onto the stack until we reach 'X'
+    while (i < n && input[i] != 'X') {
+        if (input[i] == 'a' || input[i] == 'b') {
+            stack.push(input[i]); // Push 'a' or 'b' onto the stack
+        } else {
+            return false; // Invalid character
+        }
+        i++;
+    }
+
+    // Check if we found 'X'
+    if (i == n || input[i] != 'X') {
+        return false; // 'X' not found or is at the end
+    }
+    i++; // Move past 'X'
+
+    // Now process the reverse part w^r
+    while (i < n) {
+        if (stack.empty()) {
+            return false; // More characters in w^r than in w
+        }
+        if (input[i] == stack.top()) {
+            stack.pop(); // Pop from stack for matching character
+        } else {
+            return false; // Mismatch
+        }
+        i++;
+    }
+
+    // Accept if the stack is empty after processing
+    return stack.empty();
+}
+
+int main() {
+    std::string input;
+
+    std::cout << "Enter a string of the form wXw^r (e.g., aaXaa, abXba): ";
+    std::cin >> input;
+
+    if (acceptsWxWr(input)) {
+        std::cout << "The string is accepted by the PDA." << std::endl;
+    } else {
+        std::cout << "The string is rejected by the PDA." << std::endl;
+    }
+
+    return 0;
+}
