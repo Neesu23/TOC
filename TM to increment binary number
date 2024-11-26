@@ -1,0 +1,68 @@
+Q10.  Designing a Turing Machine (TM) to increment a binary number by 1 involves simulating the behavior of the TM in C++. The TM will read a binary number from the tape, add 1 to it, and output the result back on the tape.
+
+Overview of the Incrementing Process
+Input Format: The binary number will be represented on the tape, with the least significant bit (LSB) on the left.
+Increment Logic:
+Start from the rightmost bit (LSB).
+If the bit is 0, change it to 1 and halt.
+If the bit is 1, change it to 0 and move left to continue the carry.
+If all bits are 1, change them to 0 and prepend a 1 to the left of the number.
+C++ Implementation:
+
+
+#include <iostream>
+#include <string>
+
+class TuringMachine {
+public:
+    TuringMachine(std::string input) : tape(input + "#"), head(0), state("q0") {}
+
+    void increment() {
+        while (true) {
+            char currentSymbol = tape[head];
+
+            if (state == "q0") { // Initial state
+                if (currentSymbol == '0') {
+                    tape[head] = '1'; // Change 0 to 1
+                    break; // Increment done
+                } else if (currentSymbol == '1') {
+                    tape[head] = '0'; // Change 1 to 0 and carry
+                    head++;
+                } else if (currentSymbol == '#') {
+                    tape[head] = '1'; // If we reach the end, we need to add a 1
+                    break; // Increment done
+                } else {
+                    std::cerr << "Invalid symbol on tape." << std::endl;
+                    return;
+                }
+            }
+        }
+    }
+
+    std::string getResult() const {
+        return tape.substr(0, tape.find('#')); // Return the binary number without the '#' symbol
+    }
+
+private:
+    std::string tape; // The tape of the Turing Machine
+    int head;         // The current head position
+    std::string state; // The current state of the Turing Machine
+};
+
+int main() {
+    std::string input;
+    std::cout << "Enter a binary number (e.g., 1011): ";
+    std::cin >> input;
+
+    // Validate input
+    if (input.empty() || input.find_first_not_of("01") != std::string::npos) {
+        std::cout << "Invalid input. Please enter a binary number." << std::endl;
+        return 1;
+    }
+
+    TuringMachine tm(input);
+    tm.increment();
+    std::cout << "Incremented binary number: " << tm.getResult() << std::endl;
+
+    return 0;
+}
