@@ -1,0 +1,96 @@
+Q9. C++ Implementation
+This implementation includes a simple simulation of the Turing Machine. The TM will read an input string of the form ( a^n b^n c^n ) and determine if it belongs to the language.
+
+#include <iostream>
+#include <string>
+
+class TuringMachine {
+public:
+    TuringMachine(const std::string& input) : tape(input + "#"), head(0), state("q0") {}
+
+    bool accept() {
+        while (true) {
+            char currentSymbol = tape[head];
+
+            if (state == "q0") {
+                if (currentSymbol == 'a') {
+                    tape[head] = 'X'; // Mark 'a' as 'X'
+                    head++;
+                    state = "q1";
+                } else if (currentSymbol == 'Y' || currentSymbol == 'Z' || currentSymbol == '#') {
+                    // If we encounter Y, Z, or # without processing an 'a', it's invalid
+                    return false;
+                } else {
+                    return false; // Invalid symbol
+                }
+            } else if (state == "q1") {
+                if (currentSymbol == 'a') {
+                    head++;
+                } else if (currentSymbol == 'b') {
+                    tape[head] = 'Y'; // Mark 'b' as 'Y'
+                    head++;
+                    state = "q2";
+                } else if (currentSymbol == '#') {
+                    return false; // No 'b' found
+                } else {
+                    return false; // Invalid symbol
+                }
+            } else if (state == "q2") {
+                if (currentSymbol == 'b') {
+                    head++;
+                } else if (currentSymbol == 'c') {
+                    tape[head] = 'Z'; // Mark 'c' as 'Z'
+                    head++;
+                    state = "q3";
+                } else if (currentSymbol == '#') {
+                    return false; // No 'c' found
+                } else {
+                    return false; // Invalid symbol
+                }
+            } else if (state == "q3") {
+                if (currentSymbol == 'c') {
+                    head++;
+                } else if (currentSymbol == '#') {
+                    // Check if all a's, b's, c's are marked
+                    state = "q4"; // Move to final check state
+                } else {
+                    return false; // Invalid symbol
+                }
+            } else if (state == "q4") {
+                if (currentSymbol == 'X' || currentSymbol == 'Y' || currentSymbol == 'Z') {
+                    head++;
+                } else if (currentSymbol == '#') {
+                    return true; // Accepted
+                } else {
+                    return false; // Invalid symbol
+                }
+            }
+        }
+    }
+
+private:
+    std::string tape; // The tape of the Turing Machine
+    int head;         // The current head position
+    std::string state; // The current state of the Turing Machine
+};
+
+int main() {
+    std::string input;
+    std::cout << "Enter a string of the form a^n b^n c^n (e.g., aaabbbccc): ";
+    std::cin >> input;
+
+    // Check if the input is valid
+    if (input.empty() || input[0] != 'a' || input.find_first_not_of("abc") != std::string::npos) {
+        std::cout << "Invalid input. Please enter a string containing only 'a', 'b', and 'c'." << std::endl;
+        return 1;
+    }
+
+    TuringMachine tm(input);
+    if (tm.accept()) {
+        std::cout << "Accepted!" << std::endl;
+    } else {
+        std::cout << "Rejected!" << std::endl;
+    }
+
+    return 0;
+}
