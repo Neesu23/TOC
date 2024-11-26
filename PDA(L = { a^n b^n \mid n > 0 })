@@ -1,0 +1,67 @@
+Q7. To design a Pushdown Automaton (PDA) that accepts the language ( L = { a^n b^n \mid n > 0 } ), we will outline the structure of the PDA and then provide a C++ program to simulate it.
+
+PDA Design for the Language ( L = { a^n b^n \mid n > 0 } )
+PDA Structure
+States:
+
+( q_0 ): Start state
+( q_1 ): State after reading all 'a's
+( q_f ): Accepting state
+Stack Operations:
+
+Push 'a' onto the stack for each 'a' read.
+For each 'b' read, pop an 'a' from the stack.
+If the stack is empty after reading all input and we are in the accepting state, the input is accepted.
+Transitions:
+
+( (q_0, a, \epsilon) \rightarrow (q_0, a) ) // Push 'a' onto the stack
+( (q_0, b, a) \rightarrow (q_1, \epsilon) ) // Pop 'a' for each 'b'
+( (q_1, b, a) \rightarrow (q_1, \epsilon) ) // Continue popping 'a' for 'b'
+( (q_1, \epsilon, \epsilon) \rightarrow (q_f, \epsilon) ) // Accept if stack is empty
+C++ Program to Simulate the PDA:
+
+
+#include <iostream>
+#include <stack>
+#include <string>
+
+bool acceptsAnBn(const std::string& input) {
+    std::stack<char> stack;
+
+    // Check if the input is empty or starts with 'b'
+    if (input.empty() || input[0] == 'b') {
+        return false; // Invalid input
+    }
+
+    // Process the input string
+    for (char c : input) {
+        if (c == 'a') {
+            stack.push(c); // Push 'a' onto the stack
+        } else if (c == 'b') {
+            if (stack.empty()) {
+                return false; // More 'b's than 'a's
+            }
+            stack.pop(); // Pop 'a' for each 'b'
+        } else {
+            return false; // Invalid character
+        }
+    }
+
+    // Accept if stack is empty and at least one 'a' and 'b' were processed
+    return stack.empty() && input.length() > 0 && input[0] == 'a';
+}
+
+int main() {
+    std::string input;
+
+    std::cout << "Enter a string of 'a's followed by 'b's (e.g., aaabbb): ";
+    std::cin >> input;
+
+    if (acceptsAnBn(input)) {
+        std::cout << "The string is accepted by the PDA." << std::endl;
+    } else {
+        std::cout << "The string is rejected by the PDA." << std::endl;
+    }
+
+    return 0;
+}
